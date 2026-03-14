@@ -1,0 +1,69 @@
+.left-panel {
+  width: 50%;
+  padding: 40px 40px 0 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  background: #ffffff;
+  overflow: hidden;
+  position: relative;
+}
+
+.mobilis-logo {
+  width: 100px;
+  margin-bottom: 30px;
+  display: block;
+}
+
+.main-title {
+  font-size: 1.6rem;
+  color: #222;
+  line-height: 1.3;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.green-text {
+  color: #00853f;
+}
+
+.description {
+  color: #666;
+  font-size: 1rem;
+  margin-bottom: 30px;
+  text-align: left;
+}
+
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: flex-start;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+  color: #444;
+}
+
+.icon {
+  color: #00853f;
+  font-size: 1.2rem;
+}
+
+.bottom-map-image {
+  margin-top: auto;
+  width: 100%;
+}
+
+.map-img {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
