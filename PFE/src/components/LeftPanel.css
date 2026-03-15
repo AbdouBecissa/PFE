@@ -11,13 +11,14 @@
 }
 
 .mobilis-logo {
-  width: 100px;
+  width: 160px;
   margin-bottom: 30px;
   display: block;
 }
 
 .main-title {
   font-size: 1.6rem;
+  font-weight: 400;
   color: #222;
   line-height: 1.3;
   margin-bottom: 16px;
@@ -57,7 +58,9 @@
 
 .bottom-map-image {
   margin-top: auto;
-  width: 100%;
+  width: calc(100% + 80px);
+  margin-left: -40px;
+  margin-right: -40px;
 }
 
 .map-img {
@@ -66,4 +69,40 @@
   object-fit: cover;
   object-position: center top;
   display: block;
+}
+
+.mobile-header {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .left-panel {
+    display: none;
+  }
+
+  .mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 24px;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .mobile-header img {
+    width: 80px;
+  }
+
+  .mobile-header span {
+    font-size: 13px;
+    color: #444;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .mobile-header .green-text {
+    color: #00853f;
+    font-weight: 600;
+  }
 }
