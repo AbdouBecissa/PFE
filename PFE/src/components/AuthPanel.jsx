@@ -1,23 +1,24 @@
 import { useState } from "react";
 import "./AuthPanel.css";
+import { useLang } from "../LanguageContext";
 
-function validate(name, value, signupPassword) {
+function validate(name, value, signupPassword, t) {
   switch (name) {
     case "email":
-      if (!value) return "L'email est requis.";
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return "Format email invalide. Ex: nom@gmail.com";
+      if (!value) return t.email_required;
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return t.email_invalid;
       return "";
     case "phone":
-      if (!value) return "Le numéro est requis.";
-      if (!/^\+?[0-9\s-]{7,15}$/.test(value)) return "Numéro invalide. Chiffres uniquement.";
+      if (!value) return t.phone_required;
+      if (!/^\+?[0-9\s-]{10,15}$/.test(value)) return t.phone_invalid;
       return "";
     case "password":
-      if (!value) return "Le mot de passe est requis.";
-      if (value.length < 6) return "Minimum 6 caractères.";
+      if (!value) return t.password_required;
+      if (value.length < 6) return t.password_short;
       return "";
     case "confirm":
-      if (!value) return "Veuillez confirmer le mot de passe.";
-      if (value !== signupPassword) return "Les mots de passe ne correspondent pas.";
+      if (!value) return t.confirm_required;
+      if (value !== signupPassword) return t.confirm_mismatch;
       return "";
     default:
       return "";
@@ -25,6 +26,7 @@ function validate(name, value, signupPassword) {
 }
 
 export default function AuthPanel() {
+  const { t } = useLang();
   const [tab, setTab] = useState("login");
 
   const [login, setLogin] = useState({ email: "", password: "" });
@@ -44,19 +46,19 @@ export default function AuthPanel() {
   function handleLoginChange(e) {
     const { name, value } = e.target;
     setLogin((p) => ({ ...p, [name]: value }));
-    if (loginTouched[name]) setLoginErr((p) => ({ ...p, [name]: validate(name, value) }));
+    if (loginTouched[name]) setLoginErr((p) => ({ ...p, [name]: validate(name, value, undefined, t) }));
   }
 
   function handleLoginBlur(e) {
     const { name, value } = e.target;
     setLoginTouched((p) => ({ ...p, [name]: true }));
-    setLoginErr((p) => ({ ...p, [name]: validate(name, value) }));
+    setLoginErr((p) => ({ ...p, [name]: validate(name, value, undefined, t) }));
   }
 
   function handleLoginSubmit() {
     const fields = ["email", "password"];
     const touched = Object.fromEntries(fields.map((f) => [f, true]));
-    const errors = Object.fromEntries(fields.map((f) => [f, validate(f, login[f])]));
+    const errors = Object.fromEntries(fields.map((f) => [f, validate(f, login[f], undefined, t)]));
     setLoginTouched(touched);
     setLoginErr(errors);
     if (Object.values(errors).every((e) => !e)) alert("Connexion réussie !");
@@ -68,7 +70,7 @@ export default function AuthPanel() {
     if (signupTouched[name]) {
       setSignupErr((p) => ({
         ...p,
-        [name]: validate(name, value, name === "confirm" ? signup.password : undefined),
+        [name]: validate(name, value, name === "confirm" ? signup.password : undefined, t),
       }));
     }
   }
@@ -78,65 +80,55 @@ export default function AuthPanel() {
     setSignupTouched((p) => ({ ...p, [name]: true }));
     setSignupErr((p) => ({
       ...p,
-      [name]: validate(name, value, signup.password),
+      [name]: validate(name, value, signup.password, t),
     }));
   }
 
   function handleSignupSubmit() {
     const fields = ["email", "phone", "password", "confirm"];
     const touched = Object.fromEntries(fields.map((f) => [f, true]));
-    const errors = Object.fromEntries(fields.map((f) => [f, validate(f, signup[f], signup.password)]));
+    const errors = Object.fromEntries(fields.map((f) => [f, validate(f, signup[f], signup.password, t)]));
     setSignupTouched(touched);
     setSignupErr(errors);
     if (Object.values(errors).every((e) => !e) && acceptTerms) alert("Compte créé !");
   }
 
   const signupValid =
-    !validate("email", signup.email, signup.password) &&
-    !validate("phone", signup.phone, signup.password) &&
-    !validate("password", signup.password, signup.password) &&
-    !validate("confirm", signup.confirm, signup.password) &&
+    !validate("email", signup.email, signup.password, t) &&
+    !validate("phone", signup.phone, signup.password, t) &&
+    !validate("password", signup.password, signup.password, t) &&
+    !validate("confirm", signup.confirm, signup.password, t) &&
     acceptTerms;
 
   return (
     <div className="auth-panel">
       <div className="auth-form-container">
         <div className="auth-form-inner">
-
           <div className="auth-tabs">
             <button className={`auth-tab ${tab === "login" ? "active" : ""}`} onClick={() => setTab("login")}>
-              Connexion
+              {t.login_tab}
             </button>
             <button className={`auth-tab ${tab === "signup" ? "active" : ""}`} onClick={() => setTab("signup")}>
-              Créer un compte
+              {t.register_tab}
             </button>
           </div>
 
           <div className="auth-forms-body">
-
             <div className={`auth-form ${tab === "login" ? "auth-form--visible" : "auth-form--hidden"}`}>
-              <Field label="Email" error={loginErr.email}>
-                <input
-                  name="email"
-                  type="email"
+              <Field label={t.email} error={loginErr.email}>
+                <input name="email" type="email"
                   className={`field-input ${loginTouched.email ? (loginErr.email ? "input-error" : "input-ok") : ""}`}
                   placeholder="youremail@gmail.com"
-                  value={login.email}
-                  onChange={handleLoginChange}
-                  onBlur={handleLoginBlur}
+                  value={login.email} onChange={handleLoginChange} onBlur={handleLoginBlur}
                 />
               </Field>
 
-              <Field label="Mot de passe" error={loginErr.password}>
+              <Field label={t.password} error={loginErr.password}>
                 <div className="input-icon-wrap">
-                  <input
-                    name="password"
-                    type={showLoginPass ? "text" : "password"}
+                  <input name="password" type={showLoginPass ? "text" : "password"}
                     className={`field-input ${loginTouched.password ? (loginErr.password ? "input-error" : "input-ok") : ""}`}
                     placeholder="••••••••••"
-                    value={login.password}
-                    onChange={handleLoginChange}
-                    onBlur={handleLoginBlur}
+                    value={login.password} onChange={handleLoginChange} onBlur={handleLoginBlur}
                   />
                   <button className="eye-btn" onClick={() => setShowLoginPass((p) => !p)}>
                     {showLoginPass ? <EyeOffIcon /> : <EyeIcon />}
@@ -147,58 +139,43 @@ export default function AuthPanel() {
               <div className="login-meta">
                 <label className="checkbox-label">
                   <input type="checkbox" checked={rememberMe} onChange={() => setRememberMe((v) => !v)} />
-                  <span>Se souvenir de moi</span>
+                  <span>{t.remember_me}</span>
                 </label>
-                <a href="#" className="forgot-link">Mot de passe oublié ?</a>
+                <a href="#" className="forgot-link">{t.forgot_password}</a>
               </div>
 
-              <button className="btn-primary" onClick={handleLoginSubmit}>Se connecter</button>
-
-              <div className="divider"><span>OU</span></div>
-
-              <button className="btn-google"><GoogleIcon />Continuer avec Google</button>
-
+              <button className="btn-primary" onClick={handleLoginSubmit}>{t.login_btn}</button>
+              <div className="divider"><span>{t.span}</span></div>
+              <button className="btn-google"><GoogleIcon />{t.google_btn}</button>
               <p className="switch-hint">
-                Pas encore de compte ?{" "}
-                <button className="link-btn" onClick={() => setTab("signup")}>Créer un compte</button>
+                {t.no_account}{" "}
+                <button className="link-btn" onClick={() => setTab("signup")}>{t.register_tab}</button>
               </p>
             </div>
 
             <div className={`auth-form ${tab === "signup" ? "auth-form--visible" : "auth-form--hidden"}`}>
-              <Field label="Email" error={signupErr.email}>
-                <input
-                  name="email"
-                  type="email"
+              <Field label={t.email} error={signupErr.email}>
+                <input name="email" type="email"
                   className={`field-input ${signupTouched.email ? (signupErr.email ? "input-error" : "input-ok") : ""}`}
                   placeholder="youremail@gmail.com"
-                  value={signup.email}
-                  onChange={handleSignupChange}
-                  onBlur={handleSignupBlur}
+                  value={signup.email} onChange={handleSignupChange} onBlur={handleSignupBlur}
                 />
               </Field>
 
-              <Field label="Numéro de téléphone" error={signupErr.phone}>
-                <input
-                  name="phone"
-                  type="tel"
+              <Field label={t.phone} error={signupErr.phone}>
+                <input name="phone" type="tel"
                   className={`field-input ${signupTouched.phone ? (signupErr.phone ? "input-error" : "input-ok") : ""}`}
                   placeholder="••••••••••"
-                  value={signup.phone}
-                  onChange={handleSignupChange}
-                  onBlur={handleSignupBlur}
+                  value={signup.phone} onChange={handleSignupChange} onBlur={handleSignupBlur}
                 />
               </Field>
 
-              <Field label="Mot de passe" error={signupErr.password}>
+              <Field label={t.password} error={signupErr.password}>
                 <div className="input-icon-wrap">
-                  <input
-                    name="password"
-                    type={showPass ? "text" : "password"}
+                  <input name="password" type={showPass ? "text" : "password"}
                     className={`field-input ${signupTouched.password ? (signupErr.password ? "input-error" : "input-ok") : ""}`}
                     placeholder="••••••••••"
-                    value={signup.password}
-                    onChange={handleSignupChange}
-                    onBlur={handleSignupBlur}
+                    value={signup.password} onChange={handleSignupChange} onBlur={handleSignupBlur}
                   />
                   <button className="eye-btn" onClick={() => setShowPass((p) => !p)}>
                     {showPass ? <EyeOffIcon /> : <EyeIcon />}
@@ -206,16 +183,12 @@ export default function AuthPanel() {
                 </div>
               </Field>
 
-              <Field label="Confirmer mot de passe" error={signupErr.confirm}>
+              <Field label={t.confirm_password} error={signupErr.confirm}>
                 <div className="input-icon-wrap">
-                  <input
-                    name="confirm"
-                    type={showConfirm ? "text" : "password"}
+                  <input name="confirm" type={showConfirm ? "text" : "password"}
                     className={`field-input ${signupTouched.confirm ? (signupErr.confirm ? "input-error" : "input-ok") : ""}`}
                     placeholder="••••••••••"
-                    value={signup.confirm}
-                    onChange={handleSignupChange}
-                    onBlur={handleSignupBlur}
+                    value={signup.confirm} onChange={handleSignupChange} onBlur={handleSignupBlur}
                   />
                   <button className="eye-btn" onClick={() => setShowConfirm((p) => !p)}>
                     {showConfirm ? <EyeOffIcon /> : <EyeIcon />}
@@ -225,14 +198,13 @@ export default function AuthPanel() {
 
               <label className="checkbox-label terms">
                 <input type="checkbox" checked={acceptTerms} onChange={() => setAcceptTerms((v) => !v)} />
-                <span>J'accepte les conditions d'utilisation</span>
+                <span>{t.terms}</span>
               </label>
 
               <button className="btn-primary" disabled={!signupValid} onClick={handleSignupSubmit}>
-                Créer un compte
+                {t.register_btn}
               </button>
             </div>
-
           </div>
         </div>
       </div>
@@ -246,11 +218,7 @@ function Field({ label, error, children }) {
       <label className="field-label">{label}</label>
       {children}
       <div className="field-error-slot">
-        {error && (
-          <span className="field-error">
-            <WarningIcon /> {error}
-          </span>
-        )}
+        {error && <span className="field-error"><WarningIcon /> {error}</span>}
       </div>
     </div>
   );

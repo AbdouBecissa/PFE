@@ -148,6 +148,7 @@
   height: 18px;
   display: flex;
   align-items: center;
+  overflow: hidden;
 }
 
 .field-error {
@@ -167,6 +168,11 @@
   padding-right: 44px;
 }
 
+[dir="rtl"] .input-icon-wrap .field-input {
+  padding-right: 14px;
+  padding-left: 44px;
+}
+
 .eye-btn {
   position: absolute;
   right: 12px;
@@ -180,6 +186,11 @@
   align-items: center;
   padding: 0;
   line-height: 1;
+}
+
+[dir="rtl"] .eye-btn {
+  right: auto;
+  left: 12px;
 }
 
 .eye-btn:hover {
