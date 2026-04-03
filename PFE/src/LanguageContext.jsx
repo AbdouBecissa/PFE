@@ -5,7 +5,10 @@ export const LanguageContext = createContext();
 
 export function LanguageProvider({ children }) {
   const [lang, setLang] = useState("fr");
-  const t = translations[lang];
+
+  const t = Object.fromEntries(
+    Object.entries(translations).map(([key, val]) => [key, val[lang]])
+  );
 
   useEffect(() => {
     document.dir = lang === "ar" ? "rtl" : "ltr";
